@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Órdenes</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mb-4">Formulario de Registro de Órdenes</h1>
+        <form id="orderForm">
+            <div class="form-group">
+                <label for="orderId">ID Orden</label>
+                <input type="text" id="orderId" name="orderId" class="form-control" placeholder="Ingresar ID de orden" required>
+            </div>
+            <div class="form-group">
+                <label for="orderDate">Fecha</label>
+                <input type="date" id="orderDate" name="orderDate" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="clientName">Cliente</label>
+                <input type="text" id="clientName" name="clientName" class="form-control" placeholder="Ingresar nombre del cliente" required>
+            </div>
+            <div class="form-group">
+                <label for="orderTotal">Total</label>
+                <input type="number" id="orderTotal" name="orderTotal" class="form-control" step="0.01" placeholder="Ingresar total" required>
+            </div>
+            <div class="form-group">
+                <label for="observations">Observaciones</label>
+                <textarea id="observations" name="observations" class="form-control" rows="3" placeholder="Ingresar observaciones"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="orderType">Tipo de Orden</label>
+                <select id="orderType" name="orderType" class="form-control" required>
+                    <option value="preventivo">Mantenimiento Preventivo</option>
+                    <option value="correctivo">Mantenimiento Correctivo</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Guardar Orden</button>
+            <button type="button" onclick="clearOrders()" class="btn btn-danger">Borrar Órdenes</button>
+        </form>
+        
+        <h2 class="mt-5">Lista de Órdenes</h2>
+        <table class="table table-striped mt-3" id="ordersTable">
+            <thead>
+                <tr>
+                    <th>ID Orden</th>
+                    <th>Fecha</th>
+                    <th>Cliente</th>
+                    <th>Total</th>
+                    <th>Observaciones</th>
+                    <th>Tipo de Orden</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            loadOrders();
+
+            document.getElementById("orderForm").addEventListener("submit", function (e) {
+                e.preventDefault();
+                saveOrder();
+            });
+        });
+
+        function saveOrder() {
+            const order = {
+                orderId: document.getElementById("orderId").value,
+                orderDate: document.getElementById("orderDate").value,
+                clientName: document.getElementById("clientName").value,
+                orderTotal: parseFloat(document.getElementById("orderTotal").value),
+                observations: document.getElementById("observations").value,
+                orderType: document.getElementById("orderType").value,
+            };
+
+            let orders = JSON.parse(localStorage.getItem("orders")) || [];
+            orders.push(order);
+            localStorage.setItem("orders", JSON.stringify(orders));
+
+            loadOrders();
+            document.getElementById("orderForm").reset();
+        }
+
+        function loadOrders() {
+            const ordersTableBody = document.getElementById("ordersTable").getElementsByTagName("tbody")[0];
+            ordersTableBody.innerHTML = "";
+
+            const orders = JSON.parse(localStorage.getItem("orders")) || [];
+            orders.forEach(order => {
+                const row = ordersTableBody.insertRow();
+                row.innerHTML = `
+                    <td>${order.orderId}</td>
+                    <td>${order.orderDate}</td>
+                    <td>${order.clientName}</td>
+                    <td>${order.orderTotal.toFixed(2)}</td>
+                    <td>${order.observations}</td>
+                    <td>${order.orderType}</td>
+                `;
+            });
+        }
+
+        function clearOrders() {
+            localStorage.removeItem("orders");
+            loadOrders();
+        }
+    </script>
+</body>
+</html>
